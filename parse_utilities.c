@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <linux/elf.h>
 #include "parse_utilities.h"
+#include "patch_utilities.h"
+#include "general_utilities.h"
 
 int print_segment_permissions(unsigned int flags)
 {
@@ -150,7 +152,7 @@ int print_program_headers(char *file_buffer)
 	PROGRAM_HEADER *program_headers = (PROGRAM_HEADER*)(file_buffer + ((ELF_HEADER*)file_buffer)->e_phoff);
 	unsigned short num_pht_entries = ((ELF_HEADER*)file_buffer)->e_phnum;
 	for(int i=0; i<num_pht_entries; i++) {
-		print_field("Segment type");
+		print_field("\nSegment type");
 		switch((program_headers+i)->p_type) {
 				case PT_NULL:
 				puts("Unused");
@@ -197,8 +199,6 @@ int print_program_headers(char *file_buffer)
 		print_xword("Segment size (mem)", (program_headers+i)->p_memsz);
 		print_segment_permissions((program_headers+i)->p_flags);
 
-		puts("");
-
 	}
 	return 0;
 }
@@ -212,7 +212,7 @@ int print_section_headers(char *file_buffer)
 	char *section_name_table = get_section_name_table(file_buffer);
 
 	for(int i=0; i<num_section_headers; i++) {
-		print_string("Section name", section_name_table + (section_headers +i)->sh_name);
+		print_string("\nSection name", section_name_table + (section_headers +i)->sh_name);
 		print_field("Section type");
 		switch((section_headers+i)->sh_type) {
 				case SHT_NULL:
@@ -269,14 +269,14 @@ int print_section_headers(char *file_buffer)
 		}	
 		
 		print_section_flags((section_headers+i)->sh_flags);
-
-		if((section_headers+i)->sh_flags & SHF_ALLOC) print_pointer("Section vaddr",(void*)(section_headers+i)->sh_addr); 
-
 		print_offset("Section file offset", (section_headers+i)->sh_offset);
 		print_xword("Section file size", (section_headers+i)->sh_size);
 
-		if((section_headers+i)->sh_entsize) print_xword("Section entry size", (section_headers+i)->sh_entsize); 
-		puts("");
+		if((section_headers+i)->sh_flags & SHF_ALLOC) 
+				print_pointer("Section vaddr",(void*)(section_headers+i)->sh_addr); 
+	
+		if((section_headers+i)->sh_entsize) 
+				print_xword("Section entry size", (section_headers+i)->sh_entsize); 
 	}
 	return 0;
 }
