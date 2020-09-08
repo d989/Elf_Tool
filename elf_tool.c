@@ -6,62 +6,27 @@
 #include "patch_utilities.h"
 #include "general_utilities.h"
 
-FILE *finout;
-static char *elf_filename;
-static unsigned long file_size;
-static char save_filename[64];
-char option;
-
-
-unsigned long get_file_size(FILE *finout)
-{
-	unsigned long size;
-	
-	if(fseek(finout, 0L, SEEK_END)) return -1;
-	size = ftell(finout);		
-	if(fseek(finout, 0L, SEEK_SET)) return -1;
-
-	return size;
-}
-
-int check_file_overwrite(char *original_name, char *new_name)
-{
-
-	if(!strcmp(original_name, new_name)) {
-		do {
-			puts("Overwrite existing file? (y/n)");
-			option = getchar();
-			clear_input_buffer();
-		} while (option !='y' && option != 'n');
-		if(option == 'n')
-			return -1;
-	}
-
-	return 0;
-}
-
-
 int save_file(char *file_buffer, unsigned long file_size)
 {
-	FILE *save_file;
+	FILE *file_stream;
+	static char filename[64];
 
 	do {
 		puts("\nPlease enter a name for the file:");
-	
-		if(read_input_from_user(save_filename, sizeof(save_filename))) {
+		if (read_input_from_user(filename, sizeof(filename))) {
 			perror("Could not read filename");
 			return -1;
 		}	
-	} while (check_file_overwrite(elf_filename, save_filename));
+	} while (check_file_overwrite(filename));
 
-	save_file = fopen(save_filename, "w");
-	fwrite(file_buffer, sizeof(char), file_size, save_file);
-	if(ferror(save_file)) {
+	file_stream = fopen(filename, "w");
+	fwrite(file_buffer, sizeof(char), file_size, file_stream);
+	if (ferror(file_stream)) {
 		puts("Could not write to file");
 		return -1;
 	}
-	
-	if(fclose(save_file)) {
+
+	if (fclose(file_stream)) {
 		perror("Could not close file");
 		return -1;
 	}
@@ -71,9 +36,10 @@ int save_file(char *file_buffer, unsigned long file_size)
 
 }
 
-
-int display_menu(char *file_content)
+int display_menu(char *file_content, unsigned long file_size)
 {
+	char option;
+
 	while(1) {
 		printf("\n ===== Select Option =====\n"\
 			   "1 - Display ELF Header Info\n"\
@@ -106,43 +72,41 @@ int display_menu(char *file_content)
 	}
 }
 
-
 int main(int argc, char **argv) 
 {	
-	if(argc != 2) {
+	FILE *finout;
+	char *elf_filename;
+	unsigned long file_size;
+
+	if (argc != 2) {
 		puts("Usage: ./elf_tool <ELF file name>");
 		return EXIT_FAILURE;
 	}
 
 	finout = fopen(elf_filename = argv[1], "r");
-
-	if(finout == NULL) {
+	if (finout == NULL) {
 		perror("Could not open file");
 		return EXIT_FAILURE;
 	}
 
 	file_size = get_file_size(finout);
-
-	if(file_size < 0) {
+	if (file_size < 0) {
 		perror("Could not obtain file size");
 		return EXIT_FAILURE;
 	}
 
 	char *file_content = calloc(file_size, sizeof(char));
-	
 	fread((void*)file_content,\
 				   	sizeof(char),\
 					file_size,\
 				   	finout);
-
-	if(ferror(finout)) {
+	if (ferror(finout)) {
 		puts("Could not read file contents");
 		return -1;
 	}
 
 	fclose(finout);
-
-	display_menu(file_content);
+	display_menu(file_content, file_size);
 
 	return EXIT_SUCCESS;
 }

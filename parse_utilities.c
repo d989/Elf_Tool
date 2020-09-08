@@ -17,10 +17,10 @@ int print_segment_permissions(unsigned int flags)
 
 int print_section_flags(unsigned int flags) 
 {
-	if((SHF_WRITE | SHF_ALLOC | SHF_EXECINSTR) & flags) {
+	if ((SHF_WRITE | SHF_ALLOC | SHF_EXECINSTR) & flags) {
 		print_field("Section flags");
-		if(flags & SHF_WRITE) printf("Writable\t"); 
-		if(flags & SHF_ALLOC) printf("Memory-Resident\t"); 
+		if (flags & SHF_WRITE) printf("Writable\t"); 
+		if (flags & SHF_ALLOC) printf("Memory-Resident\t"); 
 		(flags & SHF_EXECINSTR) ? puts("Instructions") : puts("");
 	}
 
@@ -272,10 +272,10 @@ int print_section_headers(char *file_buffer)
 		print_offset("Section file offset", (section_headers+i)->sh_offset);
 		print_xword("Section file size", (section_headers+i)->sh_size);
 
-		if((section_headers+i)->sh_flags & SHF_ALLOC) 
+		if ((section_headers+i)->sh_flags & SHF_ALLOC) 
 				print_pointer("Section vaddr",(void*)(section_headers+i)->sh_addr); 
 	
-		if((section_headers+i)->sh_entsize) 
+		if ((section_headers+i)->sh_entsize) 
 				print_xword("Section entry size", (section_headers+i)->sh_entsize); 
 	}
 	return 0;
