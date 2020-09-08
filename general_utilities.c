@@ -48,3 +48,33 @@ int check_file_overwrite(char *filename)
 	return 0;
 }
 
+int save_file(char *file_buffer, unsigned long file_size)
+{
+	FILE *file_stream;
+	static char filename[64];
+
+	do {
+		puts("\nPlease enter a name for the file:");
+		if (read_input_from_user(filename, sizeof(filename))) {
+			perror("Could not read filename");
+			return -1;
+		}	
+	} while (check_file_overwrite(filename));
+
+	file_stream = fopen(filename, "w");
+	fwrite(file_buffer, sizeof(char), file_size, file_stream);
+	if (ferror(file_stream)) {
+		puts("Could not write to file");
+		return -1;
+	}
+
+	if (fclose(file_stream)) {
+		perror("Could not close file");
+		return -1;
+	}
+
+	puts("File saved successfully.");
+	return 0;
+
+}
+
