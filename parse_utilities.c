@@ -34,7 +34,7 @@ PROGRAM_HEADER *get_phdr_by_type(char *file_buffer, unsigned int p_type)
 	unsigned short num_pht_entries = elf_header->e_phnum;
 
 	for (int i=0; i < num_pht_entries; i++) {
-		if((program_headers + i)->p_type = p_type)
+		if((program_headers + i)->p_type == p_type)
 				return (program_headers + i);
 	}
 
@@ -58,7 +58,7 @@ SECTION_HEADER *get_shdr_by_type(char *file_buffer, unsigned int sh_type)
 	unsigned short num_sht_entries = elf_header->e_shnum;
 
 	for (int i=0; i < num_sht_entries; i++) {
-		if((section_headers + i)->sh_type == sh_type)
+		if ((section_headers + i)->sh_type == sh_type)
 				return (section_headers + i);
 	}
 
