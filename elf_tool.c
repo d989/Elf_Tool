@@ -3,6 +3,7 @@
 #include <errno.h>
 #include <string.h>
 #include "parse_utilities.h"
+#include "printing_utilities.h"
 #include "patch_utilities.h"
 #include "general_utilities.h"
 
@@ -15,7 +16,9 @@ int display_menu(char *file_content, unsigned long file_size)
 			   "1 - Display ELF Header Info\n"\
 			   "2 - Display Program Header Info\n"\
 			   "3 - Display Section Header Info\n"\
-			   "4 - Save File\n"\
+			   "4 - Display Symbol Info\n"\
+			   "5 - Display Dynamic Linking Info\n"\
+			   "6 - Save File\n"\
 			   "q - Quit\n"\
 			   "> ");
 
@@ -32,6 +35,12 @@ int display_menu(char *file_content, unsigned long file_size)
 				print_section_headers(file_content);
 				break;
 			case '4':
+				print_symbol_info(file_content, SHT_SYMTAB);
+				break;
+			case '5':
+				print_symbol_info(file_content, SHT_DYNSYM);
+				break;
+			case '6':
 				save_file(file_content, file_size);
 				break;
 			case 'q':
